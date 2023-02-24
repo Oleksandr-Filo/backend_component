@@ -28,22 +28,21 @@ const create = (req: Request, res: Response) => {
   res.send(newCalculation);
 };
 
-const remove = (req: Request, res: Response) => {
-  const calculationId = Number(req.params.calculationId);
-  const foundCalculation = calculationsServices.findById(calculationId);
+const removeMany = (req: Request, res: Response) => {
+  const { ids } = req.body;
 
-  if (!foundCalculation) {
-    res.sendStatus(404);
+  if (!Array.isArray(ids)) {
+    res.sendStatus(422);
 
     return;
   }
 
-  calculationsServices.remove(calculationId);
+  calculationsServices.removeMany(ids);
   res.sendStatus(204);
 };
 
 export const calculationsControllers = {
   getAll,
   create,
-  remove,
+  removeMany,
 };

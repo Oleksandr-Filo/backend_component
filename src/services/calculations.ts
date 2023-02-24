@@ -59,9 +59,9 @@ const create = (enteredValue: string) => {
   return newCalculation;
 };
 
-const remove = (calculationId: number) => {
+const removeMany = (ids: number[]) => {
   calculations = calculations.filter(calculation => (
-    calculation.id !== calculationId
+    !ids.includes(calculation.id)
   ));
 };
 
@@ -69,5 +69,5 @@ export const calculationsServices = {
   getAll,
   findById,
   create,
-  remove,
+  removeMany,
 };
