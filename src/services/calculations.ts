@@ -1,7 +1,5 @@
-import { Calculation } from '../types';
-
-let calculations: Calculation[] = [];
-let largestId = 0;
+import { Op } from 'sequelize';
+import { Calculation } from '../models/Calculation';
 
 function getMedians(number: number) {
   const numsArr = Array.from({ length: number + 1 }, () => true);
@@ -31,43 +29,44 @@ function getMedians(number: number) {
     : [primeNumbers[Math.floor(primeNumbers.length / 2)]];
 }
 
-const getAll = () => calculations;
-
-const findById = (calculationId: number) => {
-  const foundCalculation = calculations.find(calculation => (
-    calculation.id === calculationId
-  ));
-
-  return foundCalculation || null;
+const getAll = () => {
+  return Calculation.findAll({
+    order: [['id', 'DESC']],
+    logging: false,
+  });
 };
 
-const create = (enteredValue: string) => {
-  largestId++;
-
-  const newCalculation: Calculation = {
-    id: largestId,
-    enteredValue: +enteredValue,
-    medians: getMedians(+enteredValue),
-  };
+const create = async (value: string) => {
+  const enteredValue = Number(value);
+  const medians = getMedians(enteredValue);
+  const calculations = await Calculation.findAll({ logging: false });
 
   if (calculations.length === 10) {
-    calculations.pop();
+    await Calculation.destroy({
+      where: { id: calculations[0].id }
+    });
   }
 
-  calculations.unshift(newCalculation);
+  const newCalculation = await Calculation.create({
+    enteredValue,
+    medians,
+  });
 
   return newCalculation;
 };
 
 const removeMany = (ids: number[]) => {
-  calculations = calculations.filter(calculation => (
-    !ids.includes(calculation.id)
-  ));
+  return Calculation.destroy({
+    where: {
+      id: {
+        [Op.in]: ids,
+      }
+    }
+  });
 };
 
 export const calculationsServices = {
   getAll,
-  findById,
   create,
   removeMany,
 };

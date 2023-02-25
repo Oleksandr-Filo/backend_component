@@ -1,13 +1,13 @@
 import { calculationsServices } from '../services/calculations';
 import { Request, Response } from 'express';
 
-const getAll = (req: Request, res: Response) => {
-  const calculations = calculationsServices.getAll();
+const getAll = async (req: Request, res: Response) => {
+  const calculations = await calculationsServices.getAll();
 
   res.send(calculations);
 };
 
-const create = (req: Request, res: Response) => {
+const create = async (req: Request, res: Response) => {
   const { enteredValue } = req.body;
 
   if (!enteredValue) {
@@ -22,13 +22,13 @@ const create = (req: Request, res: Response) => {
     return;
   }
 
-  const newCalculation = calculationsServices.create(enteredValue);
+  const newCalculation = await calculationsServices.create(enteredValue);
 
   res.statusCode = 201;
   res.send(newCalculation);
 };
 
-const removeMany = (req: Request, res: Response) => {
+const removeMany = async (req: Request, res: Response) => {
   const { ids } = req.body;
 
   if (!Array.isArray(ids)) {
@@ -37,7 +37,7 @@ const removeMany = (req: Request, res: Response) => {
     return;
   }
 
-  calculationsServices.removeMany(ids);
+  await calculationsServices.removeMany(ids);
   res.sendStatus(204);
 };
 

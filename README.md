@@ -9,5 +9,6 @@ There are also endpoints for loading the history of previous calculations and de
 2. Open project folder with code editor (VS Code, WebStorm, other).
 3. Use a 14th version of Node.js.
 4. Run ```npm install``` in terminal.
-5. Open second terminal and run ```npm start```.
-6. Server is running on ```http://localhost:5000```.
+5. Run ```npm run sync-db``` in terminal in order to connect to DB.
+6. Open second terminal and run ```npm start```.
+7. Server is running on ```http://localhost:5000```.
