@@ -1,6 +1,8 @@
 import { Op } from 'sequelize';
 import { Calculation } from '../models/Calculation';
 
+const MAX_HISTORY_LENGTH = 10;
+
 function getMedians(number: number) {
   const numsArr = Array.from({ length: number + 1 }, () => true);
 
@@ -17,7 +19,9 @@ function getMedians(number: number) {
 
   const primeNumbers = numsArr.reduce(
     (result: number[], element, index) =>
-      element ? (result.push(index), result) : result,
+      element
+        ? (result.push(index), result)
+        : result,
     []
   );
 
@@ -41,7 +45,7 @@ const create = async (value: string) => {
   const medians = getMedians(enteredValue);
   const calculations = await Calculation.findAll({ logging: false });
 
-  if (calculations.length === 10) {
+  if (calculations.length === MAX_HISTORY_LENGTH) {
     await Calculation.destroy({
       where: { id: calculations[0].id }
     });
@@ -69,4 +73,5 @@ export const calculationsServices = {
   getAll,
   create,
   removeMany,
+  getMedians,
 };
