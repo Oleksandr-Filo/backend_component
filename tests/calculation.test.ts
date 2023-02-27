@@ -1,129 +1,13 @@
+import { getMockReq, getMockRes } from '@jest-mock/express'
 import { calculationsServices } from '../src/services/calculations';
-
-import supertest from 'supertest';
-import { app } from '../src/server';
+import { calculationsControllers } from '../src/controllers/calculations';
 import { Calculation } from '../src/models/Calculation';
 
+let calculations: Calculation[] = [];
+
 const { getMedians } = calculationsServices;
-const api = supertest(app);
 
-describe('Calculation', () => {
-  describe('clearHistory', () => {
-    it('should return 422 if provided ids is not array', async () => {
-      const ids = {};
-
-      await api
-        .delete('/calculations')
-        .send({ ids })
-        .expect(422);
-    });
-
-    it('should clear hisory of calculations', async () => {
-      const res = await api
-        .get('/calculations')
-        .expect(200)
-        .expect('Content-Type', /application\/json/);
-
-      const resBody: Calculation[] = res.body;
-      const ids = resBody.map(el => el.id);
-
-      await api
-        .delete('/calculations')
-        .send({ ids })
-        .expect(204);
-
-      const response = await api
-        .get('/calculations')
-        .expect(200)
-        .expect('Content-Type', /application\/json/);
-
-      expect(response.body)
-        .toEqual([]);
-    });
-  });
-
-  describe('getCalculations', () => {
-    it('should return empty array if no calculations', async() => {
-      const response = await api
-        .get('/calculations')
-        .expect(200)
-        .expect('Content-Type', /application\/json/);
-
-      expect(response.body)
-        .toEqual([]);
-    });
-
-    it('should return all calculations', async() => {
-      const calculations = [
-        {
-          enteredValue: '10',
-        },
-        {
-          enteredValue: '18',
-        },
-      ];
-
-      const createdCalculations = await Promise.all(
-        calculations.map(
-          async(calculation) => {
-            const res = await api
-              .post('/calculations')
-              .send(calculation)
-              .expect(201)
-              .expect('Content-Type', /application\/json/);
-
-            return res.body;
-          },
-        ),
-      );
-
-      const response = await api
-        .get('/calculations')
-        .expect(200)
-        .expect('Content-Type', /application\/json/);
-
-      expect(response.body)
-        .toEqual(
-          expect.arrayContaining(
-            createdCalculations,
-          ),
-        );
-    });
-  });
-
-  describe('createCalculation', () => {
-    it('should create a new calculation', async () => {
-      const enteredValue = '14';
-      const medians = [5, 7];
-
-      const response = await api
-        .post('/calculations')
-        .send({
-          enteredValue,
-        })
-        .expect(201)
-        .expect('Content-Type', /application\/json/);
-
-      expect(response.body)
-        .toEqual(
-          expect.objectContaining({
-            id: expect.any(Number),
-            enteredValue: +enteredValue,
-            medians,
-          }),
-        );
-    });
-
-    it('should return 400 if enteredValue is not provided', async () => {
-      await api
-        .post('/calculations')
-        .send({})
-        .expect(400);
-    });
-  });
-});
-
-describe('getMedians', () => {
+describe('getMediansFunction', () => {
   it('should return an array', () => {
     const medians = getMedians(10);
 
@@ -143,5 +27,206 @@ describe('getMedians', () => {
 
     expect(medians)
       .toEqual([3, 5]);
+  });
+});
+
+describe('Calculations', () => {
+  const { res, mockClear } = getMockRes();
+
+  let spyGetAll: jest.SpyInstance;
+  let spyCreate: jest.SpyInstance;
+  let spyRemoveAll: jest.SpyInstance;
+
+  beforeEach(() => {
+    spyGetAll = jest.spyOn(calculationsServices, 'getAll')
+      .mockImplementation(() => Promise.resolve(calculations.reverse()));
+
+    spyCreate = jest.spyOn(calculationsServices, 'create')
+      .mockImplementation((value: string) => {
+        const enteredValue = Number(value);
+        const medians = getMedians(enteredValue);
+        const MAX_HISTORY_LENGTH = 10;
+
+        if (calculations.length === MAX_HISTORY_LENGTH) {
+          calculations.shift();
+        }
+
+        const maxId = calculations.length
+          ? Math.max(...calculations.map(({ id }) => id))
+          : 0;
+
+        const newCalculation = {
+          id: maxId + 1,
+          enteredValue,
+          medians,
+        } as Calculation;
+
+        calculations.push(newCalculation);
+
+        return Promise.resolve(newCalculation);
+      });
+
+    spyRemoveAll = jest.spyOn(calculationsServices, 'removeAll')
+      .mockImplementation(() => {
+        calculations = [];
+
+        return Promise.resolve(calculations.length);
+      });
+
+    mockClear();
+  });
+
+  afterEach(() => {
+    spyGetAll.mockRestore();
+    spyCreate.mockRestore();
+  });
+
+  describe('getAllCalculations', () => {
+    it('should return an empty array if no calculations', async () => {
+      const req = getMockReq();
+      
+      await calculationsControllers.getAll(req, res);
+            
+      expect(spyGetAll)
+        .toHaveBeenCalledTimes(1);
+
+      expect(res.statusCode)
+        .toEqual(200);
+
+      expect(res.send)
+        .toHaveBeenCalledWith([]);
+
+      expect(res.send)
+        .toHaveBeenCalledTimes(1);
+    });
+
+    it('should return all calculations', async () => {
+      let enteredValue = '10';
+      let req = getMockReq({ body: { enteredValue } });
+      let res = getMockRes().res;
+
+      await calculationsControllers.create(req, res);
+
+      mockClear();
+
+      enteredValue = '18';
+      req = getMockReq({ body: { enteredValue } });
+      res = getMockRes().res;
+
+      await calculationsControllers.create(req, res);
+
+      mockClear();
+
+      req = getMockReq();
+      res = getMockRes().res;
+
+      await calculationsControllers.getAll(req, res);
+      
+      expect(spyGetAll)
+        .toHaveBeenCalledTimes(1);
+
+      expect(res.statusCode)
+        .toEqual(200);
+
+      expect(res.send)
+        .toHaveBeenCalledWith([
+          {
+            id: 2,
+            enteredValue: 18,
+            medians: [7],
+          },
+          {
+            id: 1,
+            enteredValue: 10,
+            medians: [3, 5],
+          },
+        ]);
+
+      expect(res.send)
+        .toHaveBeenCalledTimes(1);
+
+      mockClear();
+    });
+  });
+
+  describe('createCalculation', () => {
+    it('should create a new calculation', async () => {
+      const enteredValue = '14';
+      const mediansForEnteredValue = [5, 7];
+      const createdCalculationForCheck = {
+        id: 3,
+        enteredValue: +enteredValue,
+        medians: mediansForEnteredValue,
+      };
+
+      const req = getMockReq({ body: { enteredValue } });
+
+      await calculationsControllers.create(req, res);
+      
+      expect(spyCreate)
+        .toHaveBeenCalledTimes(1);
+
+      expect(res.statusCode)
+        .toEqual(201);
+
+      expect(res.send)
+        .toHaveBeenCalledWith(createdCalculationForCheck);
+
+      expect(res.send)
+        .toHaveBeenCalledTimes(1);
+    });
+
+    it('should return 400 if enteredValue is not provided', async () => {
+      const req = getMockReq();
+
+      await calculationsControllers.create(req, res);
+
+      expect(res.sendStatus)
+        .toHaveBeenCalledWith(400);
+
+      expect(res.send)
+        .not.toHaveBeenCalled();
+    });
+
+    it('should return 422 if enteredValue is not a string', async () => {
+      const enteredValue = 14;
+
+      const req = getMockReq({ body: { enteredValue } });
+
+      await calculationsControllers.create(req, res);
+
+      expect(res.sendStatus)
+        .toHaveBeenCalledWith(422);
+
+      expect(res.send)
+        .not.toHaveBeenCalled();
+    });
+  });
+
+  describe('clearHistory', () => {
+    it('should clear hisory of calculations', async () => {
+      let req = getMockReq();
+      let res = getMockRes().res;
+
+      await calculationsControllers.removeAll(req, res);
+
+      expect(spyRemoveAll)
+        .toHaveBeenCalledTimes(1);
+
+      expect(res.sendStatus)
+        .toHaveBeenCalledWith(204);
+
+      mockClear();
+
+      req = getMockReq();
+      res = getMockRes().res;
+
+      await calculationsControllers.getAll(req, res);
+
+      expect(res.send)
+        .toHaveBeenCalledWith([]);
+
+      mockClear();
+    });
   });
 });

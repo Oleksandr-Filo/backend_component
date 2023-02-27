@@ -5,4 +5,4 @@ export const calculationsRouter = express.Router();
 
 calculationsRouter.get('/', calculationsControllers.getAll);
 calculationsRouter.post('/', express.json(), calculationsControllers.create);
-calculationsRouter.delete('/', express.json(), calculationsControllers.removeMany);
+calculationsRouter.delete('/', calculationsControllers.removeAll);

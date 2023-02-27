@@ -4,6 +4,7 @@ import { Request, Response } from 'express';
 const getAll = async (req: Request, res: Response) => {
   const calculations = await calculationsServices.getAll();
 
+  res.statusCode = 200;
   res.send(calculations);
 };
 
@@ -28,21 +29,14 @@ const create = async (req: Request, res: Response) => {
   res.send(newCalculation);
 };
 
-const removeMany = async (req: Request, res: Response) => {
-  const { ids } = req.body;
-
-  if (!Array.isArray(ids)) {
-    res.sendStatus(422);
-
-    return;
-  }
-
-  await calculationsServices.removeMany(ids);
+const removeAll = async (req: Request, res: Response) => {
+  await calculationsServices.removeAll();
+  
   res.sendStatus(204);
 };
 
 export const calculationsControllers = {
   getAll,
   create,
-  removeMany,
+  removeAll,
 };

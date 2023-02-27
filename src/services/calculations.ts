@@ -57,21 +57,15 @@ const create = async (value: string) => {
       enteredValue,
       medians,
     },
-    {
-      logging: false,
-    },
+    { logging: false },
   );
 
   return newCalculation;
 };
 
-const removeMany = (ids: number[]) => {
+const removeAll = () => {
   return Calculation.destroy({
-    where: {
-      id: {
-        [Op.in]: ids,
-      },
-    },
+    truncate: true,
     logging: false,
   });
 };
@@ -79,6 +73,6 @@ const removeMany = (ids: number[]) => {
 export const calculationsServices = {
   getAll,
   create,
-  removeMany,
+  removeAll,
   getMedians,
 };
