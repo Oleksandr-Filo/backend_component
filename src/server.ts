@@ -5,7 +5,7 @@ import { dbinit } from './utils/dbinit';
 
 const PORT = 5000;
 
-const app = express();
+export const app = express();
 
 dbinit();
 

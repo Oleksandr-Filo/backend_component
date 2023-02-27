@@ -47,14 +47,20 @@ const create = async (value: string) => {
 
   if (calculations.length === MAX_HISTORY_LENGTH) {
     await Calculation.destroy({
-      where: { id: calculations[0].id }
+      where: { id: calculations[0].id },
+      logging: false,
     });
   }
 
-  const newCalculation = await Calculation.create({
-    enteredValue,
-    medians,
-  });
+  const newCalculation = await Calculation.create(
+    {
+      enteredValue,
+      medians,
+    },
+    {
+      logging: false,
+    },
+  );
 
   return newCalculation;
 };
@@ -64,8 +70,9 @@ const removeMany = (ids: number[]) => {
     where: {
       id: {
         [Op.in]: ids,
-      }
-    }
+      },
+    },
+    logging: false,
   });
 };
 
