@@ -79,6 +79,7 @@ describe('Calculations', () => {
   afterEach(() => {
     spyGetAll.mockRestore();
     spyCreate.mockRestore();
+    spyRemoveAll.mockRestore();
   });
 
   describe('getAllCalculations', () => {
