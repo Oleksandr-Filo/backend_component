@@ -4,8 +4,16 @@
 Node.js server that finds the median prime number(s) using the Sieve of Eratosthenes algorithm and returns array of results or an error.
 There are also endpoints for loading the history of previous calculations and deleting all calculations from the history.
 
+## Technologies used:
+- Node.js;
+- TypeScript;
+- Express;
+- Sequelize;
+- Neon DB;
+- Jest;
+
 ## How to work with. Steps:
-1. Download or clone repository. `git clone git@github.com:Oleksandr-Filo/backend_component_fullstack_test_task.git`.
+1. Download or clone repository. `git clone git@github.com:Oleksandr-Filo/backend_component.git`.
 2. Open project folder with code editor (VS Code, WebStorm, other).
 3. Use a 14th version of Node.js.
 4. Run ```npm install``` in terminal.

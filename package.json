@@ -1,5 +1,5 @@
 {
-  "name": "backend_component_fullstack_test_task",
+  "name": "backend_component",
   "version": "1.0.0",
   "description": "Backend component",
   "main": "index.js",
@@ -10,15 +10,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Oleksandr-Filo/backend_component_fullstack_test_task.git"
+    "url": "git+https://github.com/Oleksandr-Filo/backend_component.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/Oleksandr-Filo/backend_component_fullstack_test_task/issues"
+    "url": "https://github.com/Oleksandr-Filo/backend_component/issues"
   },
-  "homepage": "https://github.com/Oleksandr-Filo/backend_component_fullstack_test_task#readme",
+  "homepage": "https://github.com/Oleksandr-Filo/backend_component#readme",
   "dependencies": {
     "cors": "^2.8.5",
     "express": "^4.18.2",
