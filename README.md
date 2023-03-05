@@ -12,11 +12,11 @@ There are also endpoints for loading the history of previous calculations and de
 - Neon DB;
 - Jest;
 
-## How to work with. Steps:
+## Instructions how to run server locally. Steps:
 1. Download or clone repository. `git clone git@github.com:Oleksandr-Filo/backend_component.git`.
 2. Open project folder with code editor (VS Code, WebStorm, other).
 3. Use a 14th version of Node.js.
 4. Run ```npm install``` in terminal.
 5. Run ```npm run sync-db``` in terminal in order to connect to DB.
-6. Open second terminal and run ```npm start```.
+6. Open second terminal and run ```npm start:local```.
 7. Server is running on ```http://localhost:5000```.

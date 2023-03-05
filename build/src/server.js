@@ -8,7 +8,7 @@ const express_1 = __importDefault(require("express"));
 const cors_1 = __importDefault(require("cors"));
 const calculations_1 = require("./routes/calculations");
 const dbinit_1 = require("./utils/dbinit");
-const PORT = 5000;
+const PORT = process.env.PORT || 5000;
 exports.app = (0, express_1.default)();
 (0, dbinit_1.dbinit)();
 exports.app.use((0, cors_1.default)());
