@@ -4,9 +4,11 @@
   "description": "Backend component",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon src/server.ts",
+    "start:local": "nodemon src/server.ts",
     "sync-db": "ts-node src/sync.ts",
-    "test": "jest"
+    "test": "jest",
+    "build": "tsc",
+    "start": "node ./build/server.js"
   },
   "repository": {
     "type": "git",
