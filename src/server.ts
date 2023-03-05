@@ -3,7 +3,7 @@ import cors from 'cors';
 import { calculationsRouter } from './routes/calculations';
 import { dbinit } from './utils/dbinit';
 
-const PORT = 5000;
+const PORT = process.env.PORT || 5000;
 
 export const app = express();
 
